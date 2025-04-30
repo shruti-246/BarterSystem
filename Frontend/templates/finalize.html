@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finalize Trades - BarterDB</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e0f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #00695c;
+    }
+    .trade-list {
+      margin-top: 20px;
+      width: 80%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .trade-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .trade-card button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .trade-card button:hover {
+      background-color: #004d40;
+    }
+    .trade-card input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .status-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #00695c;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Finalize Completed Trades</h1>
+
+<div class="trade-list" id="trade-list">
+  <!-- Trade cards will go here -->
+</div>
+
+<script>
+const BACKEND_URL = 'http://127.0.0.1:5000';
+const myUserId = sessionStorage.getItem('user_id');
+
+if (!myUserId) {
+  alert('Please login first!');
+  window.location.href = 'signup_login.html';
+}
+
+async function loadFinalizableTrades() {
+  try {
+    const resTrades = await fetch(`${BACKEND_URL}/trades`);
+    const trades = await resTrades.json();
+
+    const resItems = await fetch(`${BACKEND_URL}/items`);
+    const items = await resItems.json();
+
+    // Map items by ID for fast lookup
+    const itemMap = {};
+    items.forEach(item => {
+      itemMap[item.id] = item;
+    });
+
+    const container = document.getElementById('trade-list');
+    container.innerHTML = '';
+
+    for (const trade of trades) {
+      const offeredItem = itemMap[trade.offered_item_id];
+      const requestedItem = itemMap[trade.requested_item_id];
+
+      const isUserInvolved =
+        trade.proposer_id == myUserId ||
+        (requestedItem && requestedItem.owner_id == myUserId);
+
+      if (!isUserInvolved || !offeredItem || !requestedItem) continue;
+
+      const transRes = await fetch(`${BACKEND_URL}/get_transaction/${trade.id}`);
+      const transaction = await transRes.json();
+
+      const div = document.createElement('div');
+      div.className = 'trade-card';
+      div.innerHTML = `
+        <p><strong>Offering:</strong> ${offeredItem.name}</p>
+        <p><strong>Requesting:</strong> ${requestedItem.name}</p>
+        <input type="text" id="code-${trade.id}" placeholder="Enter your half-code" />
+        <button onclick="submitCode(${trade.id})">Submit Code</button>
+        <button id="finalize-${trade.id}" onclick="finalizeTrade(${trade.id})" disabled>Finalize Trade</button>
+        <p id="status-${trade.id}" class="status-text"></p>
+      `;
+
+      // Only enable finalize if both confirmed and not finalized
+      if (transaction.proposer_confirmed && transaction.acceptor_confirmed && !transaction.finalized) {
+        div.querySelector(`#finalize-${trade.id}`).disabled = false;
+        div.querySelector(`#status-${trade.id}`).textContent = 'Both users confirmed. Ready to finalize.';
+      }
+
+      container.appendChild(div);
+    }
+
+    if (container.innerHTML === '') {
+      container.innerHTML = '<p>No trades found.</p>';
+    }
+  } catch (error) {
+    alert('Failed to load trades.');
+  }
+}
+
+async function submitCode(tradeId) {
+  const codeInput = document.getElementById(`code-${tradeId}`);
+  const statusText = document.getElementById(`status-${tradeId}`);
+  const code = codeInput.value.trim();
+
+  if (!code) {
+    statusText.textContent = 'Please enter your half-code.';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/submit_code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trade_id: tradeId, half_code: code })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      statusText.textContent = data.message + ' You may now finalize the trade.';
+      document.getElementById(`finalize-${tradeId}`).disabled = false;
+    } else {
+      statusText.textContent = data.message;
+    }
+  } catch (error) {
+    statusText.textContent = 'Error submitting code.';
+  }
+}
+
+async function finalizeTrade(tradeId) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/finalize_trade/${tradeId}`, {
+      method: 'POST'
+    });
+    const data = await res.json();
+    alert(data.message);
+
+    loadFinalizableTrades();
+  } catch (error) {
+    alert('Failed to finalize trade.');
+  }
+}
+
+loadFinalizableTrades();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Partner - BarterDB</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #e8f5e9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; margin-top: 50px; text-align: center; }
+    input, button { width: 100%; margin-top: 10px; padding: 10px; }
+    button { background: #43a047; color: white; border: none; cursor: pointer; }
+    button:hover { background: #2e7d32; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Add Partner</h1>
+  <input type="text" id="partnerUsername" placeholder="Enter Partner Username">
+  <button onclick="addPartner()">Add Partner</button>
+  <div style="margin-top: 10px;"><a href="dashboard.html">← Back to Dashboard</a></div>
+</div>
+
+<script>
+const BACKEND_URL = 'http://127.0.0.1:5000';
+
+if (!sessionStorage.getItem('user_id')) {
+  alert('Please login first!');
+  window.location.href = 'signup_login.html';
+}
+
+const myUserId = sessionStorage.getItem('user_id');
+
+async function addPartner() {
+  const partnerUsername = document.getElementById('partnerUsername').value.trim();
+
+  if (!partnerUsername) {
+    alert('Please enter a valid Partner Username.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/add_partner`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: myUserId,
+        partner_username: partnerUsername
+      })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    if (res.ok) {
+      window.location.href = 'dashboard.html';
+    }
+  } catch (error) {
+    alert('Error adding partner.');
+  }
+}
+</script>
+
+</body>
+</html>

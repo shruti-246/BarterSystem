@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fce4ec;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #c2185b;
+      margin-bottom: 20px;
+    }
+    .edit-form {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #c2185b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ad1457;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Edit Profile</h1>
+<div class="edit-form">
+  <input type="text" id="username" placeholder="Username" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <button onclick="updateProfile()">Update</button>
+</div>
+
+<script>
+const BACKEND_URL = 'http://127.0.0.1:5000';
+const userId = sessionStorage.getItem('user_id');
+
+if (!userId) {
+  alert('Please login first!');
+  window.location.href = 'signup_login.html';
+}
+
+async function updateProfile() {
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  if (!username || !email) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/profile/${userId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email })
+    });
+    const data = await res.json();
+    alert(data.message);
+    window.location.href = 'profile.html'; // Back to profile page after update
+  } catch (error) {
+    alert('Failed to update profile.');
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BarterDB - My Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #e3f2fd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #1976d2;
+      margin-bottom: 20px;
+    }
+    .profile-info {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: left;
+    }
+    .edit {
+      margin-top: 20px;
+      cursor: pointer;
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+
+<h1>My Profile</h1>
+<div class="profile-info" id="profile"></div>
+<div class="edit" onclick="goToEdit()">✏️ Edit Profile</div>
+<div style="margin-top: 20px;">
+  <button onclick="goBack()" style="padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+    ← Back to Dashboard
+  </button>
+</div>
+
+<script>
+const BACKEND_URL = 'http://127.0.0.1:5000';
+const userId = sessionStorage.getItem('user_id');
+
+if (!userId) {
+  alert('Please login first!');
+  window.location.href = 'signup_login.html';
+}
+
+async function loadProfile() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/profile/${userId}`);
+    const profile = await res.json();
+    const container = document.getElementById('profile');
+    container.innerHTML = `
+      <strong>Username:</strong> ${profile.username}<br>
+      <strong>Email:</strong> ${profile.email}<br>
+      <strong>Role:</strong> ${profile.role}
+    `;
+  } catch (error) {
+    alert('Failed to load profile.');
+  }
+}
+
+function goBack() {
+  window.location.href = 'dashboard.html';  
+}
+
+function goToEdit() {
+  window.location.href = 'edit_profile.html';
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>
+

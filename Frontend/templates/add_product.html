@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BarterDB - Add Product</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .back {
+      margin-top: 15px;
+      color: #333;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Add Product</h1>
+    <input type="text" id="name" placeholder="Product Name" required>
+    <textarea id="description" placeholder="Description" rows="3"></textarea>
+    <input type="text" id="category" placeholder="Category" required>
+    <select id="condition">
+      <option value="New">New</option>
+      <option value="Like New">Like New</option>
+      <option value="Used">Used</option>
+      <option value="Old">Old</option>
+    </select>
+    <input type="number" id="estimated_value" placeholder="Estimated Value" required>
+    <button onclick="addProduct()">Add Product</button>
+    <div class="back" onclick="goBack()">← Back to Dashboard</div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'http://127.0.0.1:5000'; // Update if needed
+
+    // Redirect to login if user not logged in
+    if (!sessionStorage.getItem('user_id')) {
+      alert('Please login first!');
+      window.location.href = 'signup_login.html';
+    }
+
+    async function addProduct() {
+      const name = document.getElementById('name').value;
+      const description = document.getElementById('description').value;
+      const category = document.getElementById('category').value;
+      const condition = document.getElementById('condition').value;
+      const estimated_value = document.getElementById('estimated_value').value;
+
+      const owner_id = sessionStorage.getItem('user_id');
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/add_item`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            owner_id: owner_id,
+            name: name,
+            description: description,
+            category: category,
+            condition: condition,
+            estimated_value: parseFloat(estimated_value)
+          })
+        });
+        const data = await res.json();
+        alert(data.message);
+        if (res.ok) {
+          window.location.href = 'dashboard.html'; // Redirect back to dashboard after adding
+        }
+      } catch (error) {
+        alert('Error connecting to server.');
+      }
+    }
+
+    function goBack() {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+
+</body>
+</html>
