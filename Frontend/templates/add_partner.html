@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Partner - BarterDB</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #e8f5e9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; margin-top: 50px; text-align: center; }
-    input, button { width: 100%; margin-top: 10px; padding: 10px; }
-    button { background: #43a047; color: white; border: none; cursor: pointer; }
-    button:hover { background: #2e7d32; }
-  </style>
-</head>
+{% extends "base.html" %}
+{% block title %}Add Partner - BarterDB{% endblock %}
+{% block content %}
 <body>
 
 <div class="container">
@@ -63,3 +52,4 @@ async function addPartner() {
 
 </body>
 </html>
+
