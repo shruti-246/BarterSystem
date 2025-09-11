@@ -1,20 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login - BarterDB</title>
-  <style>
-    body { font-family: Arial; background: #eceff1; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; margin-top: 50px; text-align: center; }
-    input, button { width: 100%; margin-top: 10px; padding: 10px; }
-    button { background: #ff7043; color: white; border: none; cursor: pointer; }
-    button:hover { background: #f4511e; }
-  </style>
-</head>
-<body>
-
-<div class="container">
+{% extends "base.html" %}
+{% block title %}Admin Login - BarterDB{% endblock %}
+{% block content %}
+<div class="container admin-login">
   <h1>Admin Login</h1>
   <input type="text" id="adminUsername" placeholder="Admin Username">
   <input type="password" id="adminPassword" placeholder="Admin Password">
@@ -22,7 +9,7 @@
 </div>
 
 <script>
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
 
 async function adminLogin() {
   const username = document.getElementById('adminUsername').value.trim();
@@ -37,17 +24,15 @@ async function adminLogin() {
     const res = await fetch(`${BACKEND_URL}/admin_login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: username,
-        password: password
-      })
+      body: JSON.stringify({ username, password })
     });
 
     const data = await res.json();
+
     if (res.ok) {
       sessionStorage.setItem('is_admin', 'true');
       alert('Admin login successful!');
-      window.location.href = 'admin.html';
+      window.location.href = "{{ url_for('admin_view') }}";
     } else {
       alert(data.message || 'Invalid credentials.');
     }
@@ -56,6 +41,6 @@ async function adminLogin() {
   }
 }
 </script>
+{% endblock %}
 
-</body>
-</html>
+
