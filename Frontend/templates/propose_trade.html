@@ -1,83 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - Propose Trade</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff8e1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #ff6f00;
-    }
-    .container {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 400px;
-      text-align: center;
-    }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: #ff6f00;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #e65100;
-    }
-    .back {
-      margin-top: 20px;
-      cursor: pointer;
-      color: #e65100;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Propose Trade - BarterDB{% endblock %}
+{% block content %}
 
-  <h1>Propose a Trade</h1>
-  <div class="container">
-    <select id="offeredItem">
-      <option value="">Select Your Item to Offer</option>
-    </select>
+<h1>Propose a Trade</h1>
 
-    <select id="requestedItem">
-      <option value="">Select Item You Want</option>
-    </select>
+<div class="container">
+  <select id="offeredItem">
+    <option value="">Select Your Item to Offer</option>
+  </select>
 
-    <button onclick="proposeTrade()">Propose Trade</button>
-    <div class="back" onclick="goBack()">← Back to Dashboard</div>
-  </div>
+  <select id="requestedItem">
+    <option value="">Select Item You Want</option>
+  </select>
 
-  <script>
-    const BACKEND_URL = 'http://127.0.0.1:5000';
+  <button onclick="proposeTrade()">Propose Trade</button>
+  <div class="back" onclick="goBack()">← Back to Dashboard</div>
+</div>
 
-    if (!sessionStorage.getItem('user_id')) {
-      alert('Please login first!');
-      window.location.href = 'signup_login.html';
-    }
+<script>
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
+const proposerId = sessionStorage.getItem('user_id');
 
-    const proposer_id = sessionStorage.getItem('user_id');
+if (!proposerId) {
+  alert('Please login first!');
+  window.location.href = "{{ url_for('signup_login_view') }}";
+}
 
-    async function loadItems() {
+async function loadItems() {
   try {
-    const proposer_id = parseInt(sessionStorage.getItem('user_id'));
-    const resMine = await fetch(`${BACKEND_URL}/my_items/${proposer_id}`);
+    const userId = parseInt(proposerId);
+    const resMine = await fetch(`${BACKEND_URL}/my_items/${userId}`);
     const myItems = await resMine.json();
 
     const resAll = await fetch(`${BACKEND_URL}/items`);
@@ -89,21 +41,21 @@
     offeredDropdown.innerHTML = '<option value="">Select Your Item to Offer</option>';
     requestedDropdown.innerHTML = '<option value="">Select Item You Want</option>';
 
+    // Add user's and partners' items to "offered"
     myItems.forEach(item => {
       const opt = document.createElement('option');
-      const ownerLabel = item.owner_id === proposer_id ? 'You' : `Partner: ${item.owner_username}`;
+      const ownerLabel = item.owner_id === userId ? 'You' : `Partner: ${item.owner_username}`;
       opt.value = item.id;
-      opt.innerText = `${item.name} (${item.condition}) - ${ownerLabel}`;
+      opt.textContent = `${item.name} (${item.condition}) - ${ownerLabel}`;
       offeredDropdown.appendChild(opt);
     });
 
+    // Add all other items to "requested"
     allItems.forEach(item => {
-      // Skip my + partner items in "requested" list
       if (myItems.find(m => m.id === item.id)) return;
-
       const opt = document.createElement('option');
       opt.value = item.id;
-      opt.innerText = `${item.name} (${item.condition}) - Owned by ${item.owner_username}`;
+      opt.textContent = `${item.name} (${item.condition}) - Owned by ${item.owner_username}`;
       requestedDropdown.appendChild(opt);
     });
 
@@ -112,48 +64,45 @@
   }
 }
 
+async function proposeTrade() {
+  const offeredItemId = document.getElementById('offeredItem').value;
+  const requestedItemId = document.getElementById('requestedItem').value;
 
+  if (!offeredItemId || !requestedItemId) {
+    alert('Please select both items.');
+    return;
+  }
 
-    async function proposeTrade() {
-      const offeredItemId = document.getElementById('offeredItem').value;
-      const requestedItemId = document.getElementById('requestedItem').value;
+  try {
+    const res = await fetch(`${BACKEND_URL}/propose_trade`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proposer_id: proposerId,
+        offered_item_id: offeredItemId,
+        requested_item_id: requestedItemId
+      })
+    });
+    const data = await res.json();
 
-      if (!offeredItemId || !requestedItemId) {
-        alert('Please select both items.');
-        return;
-      }
-
-      try {
-        const res = await fetch(`${BACKEND_URL}/propose_trade`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            proposer_id: proposer_id,
-            offered_item_id: offeredItemId,
-            requested_item_id: requestedItemId
-          })
-        });
-        const data = await res.json();
-
-        if (res.ok) {
-          // Show the acceptor half code
-          alert(`Trade proposed successfully!\nShare this code with the other user: ${data.acceptor_half}`);
-          window.location.href = 'dashboard.html';
-        } else {
-          alert(data.message || 'Failed to propose trade.');
-        }
-      } catch (error) {
-        alert('Error proposing trade.');
-      }
+    if (res.ok) {
+      alert(`Trade proposed successfully!\nShare this code with the other user: ${data.acceptor_half}`);
+      window.location.href = "{{ url_for('dashboard_view') }}";
+    } else {
+      alert(data.message || 'Failed to propose trade.');
     }
+  } catch (error) {
+    alert('Error proposing trade.');
+  }
+}
+
+function goBack() {
+  window.location.href = "{{ url_for('dashboard_view') }}";
+}
+
+loadItems();
+</script>
+
+{% endblock %}
 
 
-    function goBack() {
-      window.location.href = 'dashboard.html';
-    }
-
-    loadItems();
-  </script>
-
-</body>
-</html>
