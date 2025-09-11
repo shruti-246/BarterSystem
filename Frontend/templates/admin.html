@@ -1,22 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel - BarterDB</title>
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #fff3e0; padding: 20px; }
-    h1 { color: #e65100; }
-    .section { margin-bottom: 30px; }
-    button { margin-top: 5px; padding: 5px 10px; background-color: #e65100; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background-color: #bf360c; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #ffe0b2; }
-  </style>
-</head>
-<body>
-
+{% extends "base.html" %}
+{% block title %}Admin Panel - BarterDB{% endblock %}
+{% block content %}
 <h1>Admin Panel</h1>
 
 <div class="section">
@@ -40,7 +24,7 @@
 </div>
 
 <script>
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
 
 async function loadAdminData() {
   await loadUsers();
@@ -53,7 +37,7 @@ if (!sessionStorage.getItem('is_admin')) {
   const adminPassword = prompt('Enter Admin Password:');
   if (adminPassword !== 'admin123') {
     alert('Incorrect password! Redirecting...');
-    window.location.href = 'signup_login.html';
+    window.location.href = "{{ url_for('signup_login') }}";
   } else {
     sessionStorage.setItem('is_admin', 'true');
   }
@@ -95,12 +79,12 @@ async function loadPartnerships() {
   const res = await fetch(`${BACKEND_URL}/admin/partnerships`);
   const partnerships = await res.json();
   let html = '<table><tr><th>ID</th><th>User</th><th>Partner</th><th>Actions</th></tr>';
-  partnerships.forEach(partner => {
+  partnerships.forEach(p => {
     html += `<tr>
-               <td>${partner.id}</td>
-               <td>${partner.user}</td>
-               <td>${partner.partner}</td>
-               <td><button onclick="deletePartnership(${partner.id})">Delete</button></td>
+               <td>${p.id}</td>
+               <td>${p.user}</td>
+               <td>${p.partner}</td>
+               <td><button onclick="deletePartnership(${p.id})">Delete</button></td>
              </tr>`;
   });
   html += '</table>';
@@ -145,6 +129,6 @@ async function deletePartnership(partnershipId) {
 
 loadAdminData();
 </script>
+{% endblock %}
 
-</body>
-</html>
+
