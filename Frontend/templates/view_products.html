@@ -1,88 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - View All Products</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #e0f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #00796b;
-    }
-    .product-list {
-      width: 80%;
-      max-width: 800px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .product-card {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .back {
-      margin-top: 20px;
-      cursor: pointer;
-      color: #00796b;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}All Products - BarterDB{% endblock %}
+{% block content %}
 
 <h1>All Available Products</h1>
+
 <div class="product-list" id="product-list"></div>
 
-<div class="back" onclick="goBack()">← Back to Dashboard</div>
+<div class="back-link" onclick="goBack()">← Back to Dashboard</div>
 
 <script>
-  const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
 
-  async function loadProducts() {
-    try {
-      const res = await fetch(`${BACKEND_URL}/items`);
-      const products = await res.json();
-      const container = document.getElementById('product-list');
-      container.innerHTML = '';
+async function loadProducts() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/items`);
+    const products = await res.json();
+    const container = document.getElementById('product-list');
+    container.innerHTML = '';
 
-      if (products.length === 0) {
-        container.innerHTML = '<p>No products available.</p>';
-      } else {
-        products.forEach(prod => {
-          const div = document.createElement('div');
-          div.className = 'product-card';
-          div.innerHTML = `
-  <strong>${prod.name}</strong><br>
-  ${prod.description}<br>
-  Category: ${prod.category}<br>
-  Condition: ${prod.condition}<br>
-  Value: $${prod.estimated_value}<br>
-  <em>Owner: ${prod.owner_username}</em>
-`;
-          container.appendChild(div);
-        });
-      }
-    } catch (error) {
-      alert('Failed to fetch products.');
+    if (!products.length) {
+      container.innerHTML = '<p>No products available.</p>';
+    } else {
+      products.forEach(prod => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <strong>${prod.name}</strong><br>
+          ${prod.description}<br>
+          <em>Category:</em> ${prod.category}<br>
+          <em>Condition:</em> ${prod.condition}<br>
+          <em>Value:</em> $${prod.estimated_value}<br>
+          <em>Owner:</em> ${prod.owner_username}
+        `;
+        container.appendChild(div);
+      });
     }
+  } catch (error) {
+    alert('Failed to fetch products.');
   }
+}
 
-  function goBack() {
-    window.location.href = 'dashboard.html';
-  }
+function goBack() {
+  window.location.href = "{{ url_for('dashboard_view') }}";
+}
 
-  loadProducts();
+loadProducts();
 </script>
 
-</body>
-</html>
+{% endblock %}
+
+
