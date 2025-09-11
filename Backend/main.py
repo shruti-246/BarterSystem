@@ -1,3 +1,17 @@
+#from flask import Flask, request, jsonify
+#import sqlite3
+#from flask_cors import CORS
+#from datetime import datetime
+#import random
+
+#def generate_code():
+    #return ''.join([str(random.randint(0,9)) for _ in range(16)])
+
+
+#app = Flask(__name__)
+#CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+#DATABASE = 'barter.db'
+import os
 from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
@@ -7,10 +21,17 @@ import random
 def generate_code():
     return ''.join([str(random.randint(0,9)) for _ in range(16)])
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
+DB_PATH = os.path.join(BASE_DIR, "barter.db")
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="../Frontend/templates",
+    #static_folder="../Frontend/static"
+)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-DATABASE = 'barter.db'
+
+DATABASE = DB_PATH
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -588,4 +609,5 @@ def admin_delete_partnership(partnership_id):
 
 if __name__ == '__main__':
     init_db()
+
     app.run(debug=True)
