@@ -1,96 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - Login/Signup</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
-      text-align: center;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    .toggle {
-      margin-top: 15px;
-      font-size: 0.9em;
-      color: #333;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Login / Signup - BarterDB{% endblock %}
+{% block content %}
 
-  <div class="container" id="form-container">
-    <h1 id="form-title">Login</h1>
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <div id="signup-extra" style="display: none;">
-      <input type="email" id="email" placeholder="Email">
-      <select id="role">
-        <option value="buyer">Buyer</option>
-        <option value="seller">Seller</option>
-      </select>
-    </div>
-    <div style="margin-top: 20px;">
-      <button onclick="goToAdminLogin()" style="padding: 8px 16px; background-color: #ff7043; color: white; border: none; border-radius: 5px; cursor: pointer;">
-        Login as Admin
-      </button>
-    </div>
-    <button onclick="submitForm()" id="submit-btn">Login</button>
-    <div class="toggle" onclick="toggleForm()">Don't have an account? Sign Up</div>
+<div class="auth-container" id="form-container">
+  <h1 id="form-title">Login</h1>
+
+  <input type="text" id="username" placeholder="Username" required>
+  <input type="password" id="password" placeholder="Password" required>
+
+  <div id="signup-extra" style="display: none;">
+    <input type="email" id="email" placeholder="Email">
+    <select id="role">
+      <option value="buyer">Buyer</option>
+      <option value="seller">Seller</option>
+    </select>
   </div>
 
-  <script>
-    let isLogin = true;
-    const BACKEND_URL = 'http://127.0.0.1:5000'; // Update this if needed
+  <button onclick="submitForm()" id="submit-btn">Login</button>
 
-    function toggleForm() {
-      isLogin = !isLogin;
-      document.getElementById('form-title').innerText = isLogin ? 'Login' : 'Signup';
-      document.getElementById('signup-extra').style.display = isLogin ? 'none' : 'block';
-      document.getElementById('submit-btn').innerText = isLogin ? 'Login' : 'Signup';
-      document.querySelector('.toggle').innerText = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
-    }
+  <div class="toggle" onclick="toggleForm()">
+    Don't have an account? Sign Up
+  </div>
 
-    function goToAdminLogin() {
-      window.location.href = 'admin_login.html';
-    }
+  <div class="admin-btn">
+    <button onclick="goToAdminLogin()">Login as Admin</button>
+  </div>
+</div>
 
-    async function submitForm() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+<script>
+let isLogin = true;
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
+
+function toggleForm() {
+  isLogin = !isLogin;
+  document.getElementById('form-title').innerText = isLogin ? 'Login' : 'Signup';
+  document.getElementById('signup-extra').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('submit-btn').innerText = isLogin ? 'Login' : 'Signup';
+  document.querySelector('.toggle').innerText = isLogin
+    ? "Don't have an account? Sign Up"
+    : "Already have an account? Login";
+}
+
+function goToAdminLogin() {
+  window.location.href = "{{ url_for('admin_login_view') }}";
+}
+
+async function submitForm() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if (!username || !password) {
+    alert('Please fill in all required fields.');
+    return;
+  }
 
   if (isLogin) {
     try {
@@ -101,30 +63,35 @@
       });
       const data = await res.json();
       alert(data.message);
-      if (data.message === 'Login successful') {
-        // 🔥 Save important info to sessionStorage
+
+      if (res.ok && data.user_id) {
         sessionStorage.setItem('user_id', data.user_id);
         sessionStorage.setItem('username', username);
         sessionStorage.setItem('role', data.role);
 
-        // 🔥 Now also fetch and save partners
         try {
           const partnerRes = await fetch(`${BACKEND_URL}/get_partners/${data.user_id}`);
           const partnerData = await partnerRes.json();
           sessionStorage.setItem('partner_ids', JSON.stringify(partnerData.partners || []));
         } catch (error) {
-          console.error('Failed to fetch partners:', error);
+          console.warn('Failed to fetch partners:', error);
           sessionStorage.setItem('partner_ids', JSON.stringify([]));
         }
 
-        window.location.href = 'dashboard.html';
+        window.location.href = "{{ url_for('dashboard_view') }}";
       }
     } catch (error) {
       alert('Error connecting to server.');
     }
   } else {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const role = document.getElementById('role').value;
+
+    if (!email) {
+      alert('Please provide an email.');
+      return;
+    }
+
     try {
       const res = await fetch(`${BACKEND_URL}/register`, {
         method: 'POST',
@@ -133,13 +100,18 @@
       });
       const data = await res.json();
       alert(data.message);
+
+      if (res.ok) {
+        // After successful signup, switch to login view
+        toggleForm();
+      }
     } catch (error) {
       alert('Error connecting to server.');
     }
   }
 }
+</script>
 
-  </script>
+{% endblock %}
 
-</body>
-</html>
+
