@@ -1,62 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Finalize Trades - BarterDB</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #e0f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      color: #00695c;
-    }
-    .trade-list {
-      margin-top: 20px;
-      width: 80%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .trade-card {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .trade-card button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .trade-card button:hover {
-      background-color: #004d40;
-    }
-    .trade-card input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    .status-text {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #00695c;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Finalize Trades - BarterDB{% endblock %}
+{% block content %}
 
 <h1>Finalize Completed Trades</h1>
 
@@ -65,12 +9,12 @@
 </div>
 
 <script>
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
 const myUserId = sessionStorage.getItem('user_id');
 
 if (!myUserId) {
   alert('Please login first!');
-  window.location.href = 'signup_login.html';
+  window.location.href = "{{ url_for('signup_login_view') }}";
 }
 
 async function loadFinalizableTrades() {
@@ -81,11 +25,9 @@ async function loadFinalizableTrades() {
     const resItems = await fetch(`${BACKEND_URL}/items`);
     const items = await resItems.json();
 
-    // Map items by ID for fast lookup
+    // Map items by ID
     const itemMap = {};
-    items.forEach(item => {
-      itemMap[item.id] = item;
-    });
+    items.forEach(item => itemMap[item.id] = item);
 
     const container = document.getElementById('trade-list');
     container.innerHTML = '';
@@ -114,16 +56,18 @@ async function loadFinalizableTrades() {
         <p id="status-${trade.id}" class="status-text"></p>
       `;
 
-      // Only enable finalize if both confirmed and not finalized
-      if (transaction.proposer_confirmed && transaction.acceptor_confirmed && !transaction.finalized) {
+      if (transaction.proposer_confirmed &&
+          transaction.acceptor_confirmed &&
+          !transaction.finalized) {
         div.querySelector(`#finalize-${trade.id}`).disabled = false;
-        div.querySelector(`#status-${trade.id}`).textContent = 'Both users confirmed. Ready to finalize.';
+        div.querySelector(`#status-${trade.id}`).textContent =
+          'Both users confirmed. Ready to finalize.';
       }
 
       container.appendChild(div);
     }
 
-    if (container.innerHTML === '') {
+    if (!container.innerHTML.trim()) {
       container.innerHTML = '<p>No trades found.</p>';
     }
   } catch (error) {
@@ -168,7 +112,6 @@ async function finalizeTrade(tradeId) {
     });
     const data = await res.json();
     alert(data.message);
-
     loadFinalizableTrades();
   } catch (error) {
     alert('Failed to finalize trade.');
@@ -178,5 +121,6 @@ async function finalizeTrade(tradeId) {
 loadFinalizableTrades();
 </script>
 
-</body>
-</html>
+{% endblock %}
+
+
