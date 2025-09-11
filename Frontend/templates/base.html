@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Barter System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="logo">Barter System</a>
+            <div class="nav-links">
+                <a href="{{ url_for('signup_login') }}">Sign Up / Login</a>
+                <a href="{{ url_for('add_product_view') }}">Add Product</a>
+                <a href="{{ url_for('view_products') }}">View Products</a>
+                <a href="{{ url_for('profile_view') }}">Profile</a>
+                <a href="{{ url_for('admin_login_view') }}">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>
