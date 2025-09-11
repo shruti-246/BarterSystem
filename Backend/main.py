@@ -13,6 +13,7 @@
 #DATABASE = 'barter.db'
 import os
 from flask import Flask, request, jsonify
+from flask import render_template
 import sqlite3
 from flask_cors import CORS
 from datetime import datetime
@@ -615,4 +616,5 @@ if __name__ == '__main__':
     init_db()
 
     app.run(debug=True)
+
 
