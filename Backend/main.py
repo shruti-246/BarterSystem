@@ -1,44 +1,37 @@
-#from flask import Flask, request, jsonify
-#import sqlite3
-#from flask_cors import CORS
-#from datetime import datetime
-#import random
-
-#def generate_code():
-    #return ''.join([str(random.randint(0,9)) for _ in range(16)])
-
-
-#app = Flask(__name__)
-#CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-#DATABASE = 'barter.db'
 import os
-from flask import Flask, request, jsonify
-from flask import render_template
-import sqlite3
-from flask_cors import CORS
-from datetime import datetime
 import random
+import sqlite3
+from datetime import datetime
+from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS
 
-def generate_code():
-    return ''.join([str(random.randint(0,9)) for _ in range(16)])
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
+# ----------------------------------------------------
+#  Config
+# ----------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "barter.db")
 
 app = Flask(
     __name__,
     template_folder="../Frontend/templates",
-    #static_folder="../Frontend/static"
+    static_folder="../Frontend/static"
 )
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-DATABASE = DB_PATH
 
-def get_db():
-    conn = sqlite3.connect(DATABASE)
+# ----------------------------------------------------
+#  Helpers
+# ----------------------------------------------------
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+
+def generate_code():
+    """Generate 16-digit trade code."""
+    return ''.join(str(random.randint(0, 9)) for _ in range(16))
+    
 # Setup DB and demo data
 def init_db():
     conn = get_db()
@@ -608,13 +601,81 @@ def admin_delete_partnership(partnership_id):
     conn.close()
     return jsonify({'message': 'Partnership deleted successfully.'})
 
+# ---------- Pages (HTML templates) ----------
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
+
+@app.route("/dashboard")
+def dashboard_view():
+    return render_template("dashboard.html")
+
+
+@app.route("/signup_login")
+def signup_login_view():
+    return render_template("signup_login.html")
+
+
+@app.route("/profile")
+def profile_view():
+    return render_template("profile.html")
+
+
+@app.route("/edit_profile")
+def edit_profile_view():
+    return render_template("edit_profile.html")
+
+
+@app.route("/add_product")
+def add_product_view():
+    return render_template("add_product.html")
+
+
+@app.route("/view_products")
+def view_products_view():
+    return render_template("view_products.html")
+
+
+@app.route("/my_products")
+def my_products_view():
+    return render_template("my_products.html")
+
+
+@app.route("/propose_trade")
+def propose_trade_view():
+    return render_template("propose_trade.html")
+
+
+@app.route("/manage_proposals")
+def manage_proposals_view():
+    return render_template("manage_proposals.html")
+
+
+@app.route("/finalize")
+def finalize_view():
+    return render_template("finalize.html")
+
+
+@app.route("/add_partner")
+def add_partner_view():
+    return render_template("add_partner.html")
+
+
+@app.route("/admin_login_page")
+def admin_login_view():
+    return render_template("admin_login.html")
+
+
+@app.route("/admin")
+def admin_panel_view():
+    return render_template("admin.html")
     
 if __name__ == '__main__':
     init_db()
 
     app.run(debug=True)
+
 
 
