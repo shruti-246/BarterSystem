@@ -1,117 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - Manage Proposals</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #ede7f6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #5e35b1;
-    }
-    .proposal-list {
-      width: 80%;
-      max-width: 800px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .proposal-card {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    button {
-      margin: 10px 5px 0 5px;
-      padding: 8px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .accept {
-      background-color: #4CAF50;
-      color: white;
-    }
-    .reject {
-      background-color: #f44336;
-      color: white;
-    }
-    .back {
-      margin-top: 20px;
-      cursor: pointer;
-      color: #5e35b1;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Manage Proposals - BarterDB{% endblock %}
+{% block content %}
 
 <h1>Manage Trade Proposals</h1>
+
 <div class="proposal-list" id="proposal-list"></div>
 
 <div class="back" onclick="goBack()">← Back to Dashboard</div>
 
 <script>
-  const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
+const myUserId = sessionStorage.getItem('user_id');
 
-  if (!sessionStorage.getItem('user_id')) {
-    alert('Please login first!');
-    window.location.href = 'signup_login.html';
-  }
+if (!myUserId) {
+  alert('Please login first!');
+  window.location.href = "{{ url_for('signup_login_view') }}";
+}
 
-  const myUserId = sessionStorage.getItem('user_id');
+async function loadProposals() {
+  try {
+    const resTrades = await fetch(`${BACKEND_URL}/trades`);
+    const trades = await resTrades.json();
+    const resItems = await fetch(`${BACKEND_URL}/items`);
+    const items = await resItems.json();
 
-  async function loadProposals() {
-    try {
-      const resTrades = await fetch(`${BACKEND_URL}/trades`);
-      const trades = await resTrades.json();
-      const resItems = await fetch(`${BACKEND_URL}/items`);
-      const items = await resItems.json();
+    const itemMap = {};
+    items.forEach(item => itemMap[item.id] = item);
 
-      const itemMap = {};
-      items.forEach(item => itemMap[item.id] = item);
+    const myProposals = trades.filter(trade => {
+      const requestedItem = itemMap[trade.requested_item_id];
+      return requestedItem && requestedItem.owner_id == myUserId && trade.status === 'pending';
+    });
 
-      const myProposals = trades.filter(trade => {
-        const requestedItem = itemMap[trade.requested_item_id];
-        return requestedItem && requestedItem.owner_id == myUserId && trade.status === 'pending';
+    const container = document.getElementById('proposal-list');
+    container.innerHTML = '';
+
+    if (myProposals.length === 0) {
+      container.innerHTML = '<p>No incoming proposals right now.</p>';
+    } else {
+      myProposals.forEach(proposal => {
+        const offered = itemMap[proposal.offered_item_id];
+        const requested = itemMap[proposal.requested_item_id];
+
+        const div = document.createElement('div');
+        div.className = 'proposal-card';
+        div.innerHTML = `
+          <strong>Offered:</strong> ${offered.name} (${offered.condition})<br>
+          <strong>Requested:</strong> ${requested.name} (${requested.condition})<br>
+          <button class="accept" onclick="acceptTrade(${proposal.id}, ${offered.id}, ${requested.id})">Accept</button>
+          <button class="reject" onclick="rejectTrade(${proposal.id})">Reject</button>
+        `;
+        container.appendChild(div);
       });
-
-      const container = document.getElementById('proposal-list');
-      container.innerHTML = '';
-
-      if (myProposals.length === 0) {
-        container.innerHTML = '<p>No incoming proposals right now.</p>';
-      } else {
-        myProposals.forEach(proposal => {
-          const offered = itemMap[proposal.offered_item_id];
-          const requested = itemMap[proposal.requested_item_id];
-
-          const div = document.createElement('div');
-          div.className = 'proposal-card';
-          div.innerHTML = `
-            <strong>Offered:</strong> ${offered.name} (${offered.condition})<br>
-            <strong>Requested:</strong> ${requested.name} (${requested.condition})<br>
-            <button class="accept" onclick="acceptTrade(${proposal.id}, ${offered.id}, ${requested.id})">Accept</button>
-            <button class="reject" onclick="rejectTrade(${proposal.id})">Reject</button>
-          `;
-          container.appendChild(div);
-        });
-      }
-    } catch (error) {
-      alert('Failed to load proposals.');
     }
+  } catch (error) {
+    alert('Failed to load proposals.');
   }
+}
 
-  
-  async function acceptTrade(tradeId, offeredItemId, requestedItemId) {
+async function acceptTrade(tradeId, offeredItemId, requestedItemId) {
   try {
     const enteredCode = prompt('Enter your half of the transaction code:');
 
@@ -120,7 +67,6 @@
       return;
     }
 
-    // Step 1: Submit entered half-code
     const codeRes = await fetch(`${BACKEND_URL}/submit_code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -133,9 +79,8 @@
     const codeData = await codeRes.json();
 
     if (codeRes.ok) {
-      // Step 2: Show the other half of the code
       alert(`Code accepted!\nOther half to complete the transaction: ${codeData.other_half}`);
-      loadProposals();  // reload proposals normally
+      loadProposals();
     } else {
       alert(codeData.message || 'Invalid code.');
     }
@@ -144,23 +89,23 @@
   }
 }
 
-
-  async function rejectTrade(tradeId) {
-    try {
-      await fetch(`${BACKEND_URL}/delete_trade/${tradeId}`, { method: 'DELETE' });
-      alert('Trade rejected and deleted.');
-      loadProposals();
-    } catch (error) {
-      alert('Error rejecting trade.');
-    }
+async function rejectTrade(tradeId) {
+  try {
+    await fetch(`${BACKEND_URL}/delete_trade/${tradeId}`, { method: 'DELETE' });
+    alert('Trade rejected and deleted.');
+    loadProposals();
+  } catch (error) {
+    alert('Error rejecting trade.');
   }
+}
 
-  function goBack() {
-    window.location.href = 'dashboard.html';
-  }
+function goBack() {
+  window.location.href = "{{ url_for('dashboard_view') }}";
+}
 
-  loadProposals();
+loadProposals();
 </script>
 
-</body>
-</html>
+{% endblock %}
+
+
