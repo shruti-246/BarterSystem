@@ -37,7 +37,7 @@ if (!sessionStorage.getItem('is_admin')) {
   const adminPassword = prompt('Enter Admin Password:');
   if (adminPassword !== 'admin123') {
     alert('Incorrect password! Redirecting...');
-    window.location.href = "{{ url_for('signup_login') }}";
+    window.location.href = "{{ url_for('admin_login_view') }}";
   } else {
     sessionStorage.setItem('is_admin', 'true');
   }

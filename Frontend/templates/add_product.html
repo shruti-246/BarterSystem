@@ -26,7 +26,7 @@ const BACKEND_URL = "{{ request.host_url.rstrip('/') }}"; // or hardcode your de
 
 if (!sessionStorage.getItem('user_id')) {
   alert('Please login first!');
-  window.location.href = "{{ url_for('signup_login') }}";
+  window.location.href = "{{ url_for('signup_login_view') }}";
 }
 
 async function addProduct() {

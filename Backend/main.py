@@ -2,7 +2,7 @@ import os
 import random
 import sqlite3
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, session, url_for
 from flask_cors import CORS
 
 # ----------------------------------------------------
@@ -22,7 +22,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 # ----------------------------------------------------
 #  Helpers
 # ----------------------------------------------------
-def get_db_connection():
+def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

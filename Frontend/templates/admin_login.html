@@ -26,13 +26,13 @@ async function adminLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
-
     const data = await res.json();
 
     if (res.ok) {
       sessionStorage.setItem('is_admin', 'true');
       alert('Admin login successful!');
-      window.location.href = "{{ url_for('admin_view') }}";
+      //Redirect to the admin panel instead of the login page
+      window.location.href = "{{ url_for('admin_panel_view') }}";
     } else {
       alert(data.message || 'Invalid credentials.');
     }
