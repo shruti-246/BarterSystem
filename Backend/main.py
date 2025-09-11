@@ -607,7 +607,12 @@ def admin_delete_partnership(partnership_id):
     conn.close()
     return jsonify({'message': 'Partnership deleted successfully.'})
 
+@app.route("/")
+def home():
+    return render_template("index.html")
+    
 if __name__ == '__main__':
     init_db()
 
     app.run(debug=True)
+
