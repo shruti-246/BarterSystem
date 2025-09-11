@@ -1,21 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Add Partner - BarterDB{% endblock %}
 {% block content %}
-<body>
-
 <div class="container">
   <h1>Add Partner</h1>
+
   <input type="text" id="partnerUsername" placeholder="Enter Partner Username">
   <button onclick="addPartner()">Add Partner</button>
-  <div style="margin-top: 10px;"><a href="dashboard.html">← Back to Dashboard</a></div>
+
+  <div style="margin-top: 10px;">
+    <a href="{{ url_for('dashboard_view') }}">← Back to Dashboard</a>
+  </div>
 </div>
 
 <script>
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.slice(0, -1) }}";  // optional, or hardcode your backend URL
 
 if (!sessionStorage.getItem('user_id')) {
   alert('Please login first!');
-  window.location.href = 'signup_login.html';
+  window.location.href = "{{ url_for('signup_login') }}";
 }
 
 const myUserId = sessionStorage.getItem('user_id');
@@ -42,14 +44,14 @@ async function addPartner() {
     alert(data.message);
 
     if (res.ok) {
-      window.location.href = 'dashboard.html';
+      window.location.href = "{{ url_for('dashboard_view') }}";
     }
   } catch (error) {
     alert('Error adding partner.');
   }
 }
 </script>
+{% endblock %}
 
-</body>
-</html>
+
 
