@@ -1,62 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - My Products</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fce4ec;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #ad1457;
-    }
-    .product-list {
-      width: 80%;
-      max-width: 800px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .product-card {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .back {
-      margin-top: 20px;
-      cursor: pointer;
-      color: #ad1457;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}My Products - BarterDB{% endblock %}
+{% block content %}
 
 <h1>My Products</h1>
+
 <div class="product-list" id="product-list"></div>
 
 <div class="back" onclick="goBack()">← Back to Dashboard</div>
 
 <script>
-  const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = "{{ request.host_url.rstrip('/') }}";
+const myUserId = sessionStorage.getItem('user_id');
 
-  // Redirect to login if not logged in
-  if (!sessionStorage.getItem('user_id')) {
-    alert('Please login first!');
-    window.location.href = 'signup_login.html';
-  }
+if (!myUserId) {
+  alert('Please login first!');
+  window.location.href = "{{ url_for('signup_login_view') }}";
+}
 
-  const myUserId = sessionStorage.getItem('user_id');
-
-  async function loadMyProducts() {
+async function loadMyProducts() {
   try {
     const res = await fetch(`${BACKEND_URL}/my_items/${myUserId}`);
     const products = await res.json();
@@ -70,16 +31,17 @@
         const div = document.createElement('div');
         div.className = 'product-card';
 
-        const ownerLabel = (prod.owner_id == myUserId)
-          ? '(You)'
-          : `(Partner: ${prod.owner_username})`;
+        const ownerLabel =
+          prod.owner_id == myUserId
+            ? '(You)'
+            : `(Partner: ${prod.owner_username})`;
 
         div.innerHTML = `
           <strong>${prod.name}</strong> ${ownerLabel}<br>
-          ${prod.description}<br>
-          Category: ${prod.category}<br>
-          Condition: ${prod.condition}<br>
-          Value: $${prod.estimated_value}
+          ${prod.description || ''}<br>
+          Category: ${prod.category || 'N/A'}<br>
+          Condition: ${prod.condition || 'N/A'}<br>
+          Value: $${prod.estimated_value || 0}
         `;
         container.appendChild(div);
       });
@@ -89,12 +51,13 @@
   }
 }
 
-  function goBack() {
-    window.location.href = 'dashboard.html';
-  }
+function goBack() {
+  window.location.href = "{{ url_for('dashboard_view') }}";
+}
 
-  loadMyProducts();
+loadMyProducts();
 </script>
 
-</body>
-</html>
+{% endblock %}
+
+
