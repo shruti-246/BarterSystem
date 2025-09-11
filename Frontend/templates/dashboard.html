@@ -1,86 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BarterDB - Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #e0f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-top: 30px;
-      color: #00796b;
-    }
-    .button-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 40px;
-    }
-    button {
-      padding: 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      background: #26a69a;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #00796b;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Dashboard - BarterDB{% endblock %}
+{% block content %}
+<h1>Welcome to BarterDB!</h1>
 
-  <h1>Welcome to BarterDB!</h1>
-  <div class="button-grid">
-    <button onclick="goTo('trade')">Propose Trade</button>
-    <button onclick="goTo('add')">Add Product</button>
-    <button onclick="goTo('view')">View All Products</button>
-    <button onclick="goTo('myproducts')">My Products</button>
-    <button onclick="goTo('manage')">Manage Proposals</button>
-    <button onclick="goTo('partner')">Add Trading Partner</button>
-    <button onclick="goTo('Finalize Trades')">Finalize Trades</button>
-  </div>
+<div class="button-grid">
+  <button onclick="goTo('trade')">Propose Trade</button>
+  <button onclick="goTo('add')">Add Product</button>
+  <button onclick="goTo('view')">View All Products</button>
+  <button onclick="goTo('myproducts')">My Products</button>
+  <button onclick="goTo('manage')">Manage Proposals</button>
+  <button onclick="goTo('partner')">Add Trading Partner</button>
+  <button onclick="goTo('finalize')">Finalize Trades</button>
+</div>
 
-  <script>
-    function goTo(page) {
-      switch(page) {
-        case 'trade':
-          window.location.href = 'propose_trade.html';
-          break;
-        case 'add':
-          window.location.href = 'add_product.html';
-          break;
-        case 'view':
-          window.location.href = 'view_products.html';
-          break;
-        case 'myproducts':
-          window.location.href = 'my_products.html';
-          break;
-        case 'manage':
-          window.location.href = 'manage_proposals.html';
-          break;
-        case 'partner':
-          window.location.href = 'add_partner.html';
-          break;
-        case 'Finalize Trades':
-          window.location.href = 'finalize.html';
-          break;
-      }
-    }
-  </script>
+<script>
+function goTo(page) {
+  switch (page) {
+    case 'trade':
+      window.location.href = "{{ url_for('propose_trade_view') }}";
+      break;
+    case 'add':
+      window.location.href = "{{ url_for('add_product_view') }}";
+      break;
+    case 'view':
+      window.location.href = "{{ url_for('view_products_view') }}";
+      break;
+    case 'myproducts':
+      window.location.href = "{{ url_for('my_products_view') }}";
+      break;
+    case 'manage':
+      window.location.href = "{{ url_for('manage_proposals_view') }}";
+      break;
+    case 'partner':
+      window.location.href = "{{ url_for('add_partner_view') }}";
+      break;
+    case 'finalize':
+      window.location.href = "{{ url_for('finalize_view') }}";
+      break;
+  }
+}
+</script>
+{% endblock %}
 
-</body>
-</html>
+
