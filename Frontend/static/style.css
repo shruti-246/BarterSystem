@@ -24,26 +24,64 @@ button {
 }
 
 /* ==========================
-   Navbar
+   side bar
    ========================== */
 
-.navbar {
-  background-color: #00796b;
-  color: white;
-  padding: 12px 25px;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.wrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  height: 100vh;
 }
 
-.navbar a {
+.sidebar {
+  width: 220px;
+  background: #0a7263;
   color: white;
-  margin-right: 15px;
-  font-weight: bold;
+  padding: 20px;
 }
 
-.navbar a:hover {
-  text-decoration: underline;
+.sidebar a.active {
+  background: #005f5f;
+  color: #fff;
+  font-weight: bold;
+  pointer-events: none;  /* optional: disable clicking the current page */
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 15px 0;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: white;
+  display: block;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.sidebar a:hover {
+  background: #05594c;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+  background: #f5f5f5;
 }
 
 /* ==========================
@@ -102,7 +140,7 @@ button {
 
 /* ==========================
    Auth (Login / Signup)
-   ========================== 
+   ========================== */
 
 .auth-container {
   width: 300px;
@@ -152,257 +190,48 @@ button {
 .admin-btn button:hover {
   background: #f4511e;
 }
-*/
-/* --- Sign-in / Sign-up page --- */
-.auth-container {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 14px 28px rgba(0,0,0,0.25),
-              0 10px 10px rgba(0,0,0,0.22);
-  position: relative;
-  overflow: hidden;
-  width: 800px;
-  max-width: 100%;
-  min-height: 480px;
-  margin: 40px auto;
-  display: flex;
+
+.landing {
+  text-align: center;
+  margin-top: 80px;
 }
 
-.form-container {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  transition: all 0.6s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 50%;
-  padding: 0 40px;
+.landing h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
 }
 
-.sign-in { left: 0; z-index: 2; }
-.sign-up { left: 0; opacity: 0; z-index: 1; }
-
-.auth-container.right-panel-active .sign-up {
-  transform: translateX(100%);
-  opacity: 1;
-  z-index: 5;
-}
-
-.auth-container.right-panel-active .sign-in {
-  transform: translateX(100%);
-}
-
-.overlay {
-  background: linear-gradient(to right, #ff4b2b, #ff416c);
-  color: white;
-  position: absolute;
-  left: 50%;
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.6s ease-in-out;
-}
-
-.auth-container.right-panel-active .overlay {
-  transform: translateX(-100%);
-}
-
-
-/* ==========================
-   Forms (Add Product, Partner, Edit Profile)
-   ========================== */
-
-input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-textarea {
-  resize: vertical;
-}
-
-form button,
-.container button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
-}
-
-form button:hover,
-.container button:hover {
-  background: #388e3c;
-}
-
-/* ==========================
-   Product Cards
-   ========================== */
-
-.product-list {
-  width: 80%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 20px auto;
-}
-
-.product-card {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-  line-height: 1.5;
-}
-
-.back-link,
-.back {
-  margin-top: 20px;
-  cursor: pointer;
-  color: #00796b;
-  font-weight: bold;
-}
-
-.back-link:hover,
-.back:hover {
-  text-decoration: underline;
-}
-
-/* ==========================
-   Proposals & Finalize Trades
-   ========================== */
-
-.proposal-list,
-.trade-list {
-  width: 80%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.proposal-card,
-.trade-card {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.proposal-card button,
-.trade-card button {
-  margin-top: 10px;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  color: white;
-}
-
-.accept {
-  background-color: #4CAF50;
-}
-
-.accept:hover {
-  background-color: #388e3c;
-}
-
-.reject {
-  background-color: #f44336;
-}
-
-.reject:hover {
-  background-color: #d32f2f;
-}
-
-.trade-card input {
-  width: 100%;
-  padding: 8px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.trade-card button {
-  background: #00796b;
-}
-
-.trade-card button:hover {
-  background: #004d40;
-}
-
-.status-text {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #00695c;
-}
-
-/* ==========================
-   Profile
-   ========================== */
-
-.profile-info {
-  width: 300px;
-  margin: 20px auto;
-  text-align: left;
-}
-
-.edit {
-  margin-top: 20px;
-  cursor: pointer;
-  color: #1976d2;
-  font-weight: bold;
-}
-
-.edit:hover {
-  text-decoration: underline;
-}
-
-/* ==========================
-   Admin Panel
-   ========================== */
-
-.admin-section {
+.landing p {
+  font-size: 1.2rem;
+  color: #555;
   margin-bottom: 30px;
 }
 
-.admin-section table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+.landing-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.admin-section th,
-.admin-section td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
+.landing-buttons .btn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  background: #4CAF50;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.2s;
 }
 
-.admin-section th {
-  background-color: #ffe0b2;
+.landing-buttons .btn:hover {
+  background: #45a049;
 }
 
-.admin-section button {
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: #e65100;
-  color: white;
-  border: none;
-  border-radius: 5px;
+.landing-buttons .admin {
+  background: #e74c3c;
 }
 
-.admin-section button:hover {
-  background-color: #bf360c;
+.landing-buttons .admin:hover {
+  background: #c0392b;
 }
-

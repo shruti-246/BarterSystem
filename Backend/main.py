@@ -620,53 +620,59 @@ def signup_login_view():
 
 @app.route("/profile")
 def profile_view():
-    return render_template("profile.html")
+    return render_template("profile.html", show_sidebar=True)
 
 
 @app.route("/edit_profile")
 def edit_profile_view():
-    return render_template("edit_profile.html")
+    return render_template("edit_profile.html", show_sidebar=True)
 
 
 @app.route("/add_product")
 def add_product_view():
-    return render_template("add_product.html")
+    return render_template("add_product.html", show_sidebar=True)
 
 
 @app.route("/view_products")
 def view_products_view():
-    return render_template("view_products.html")
+    return render_template("view_products.html", show_sidebar=True)
 
 
 @app.route("/my_products")
 def my_products_view():
-    return render_template("my_products.html")
+    return render_template("my_products.html", show_sidebar=True)
 
 
 @app.route("/propose_trade")
 def propose_trade_view():
-    return render_template("propose_trade.html")
+    return render_template("propose_trade.html", show_sidebar=True)
 
 
 @app.route("/manage_proposals")
 def manage_proposals_view():
-    return render_template("manage_proposals.html")
-
+    return render_template("manage_proposals.html", show_sidebar=True)
 
 @app.route("/finalize")
 def finalize_view():
-    return render_template("finalize.html")
-
+    return render_template("finalize.html", show_sidebar=True)
 
 @app.route("/add_partner")
 def add_partner_view():
-    return render_template("add_partner.html")
-
+    return render_template("add_partner.html", show_sidebar=True)
 
 @app.route("/admin_login_page")
 def admin_login_view():
     return render_template("admin_login.html")
 
+@app.route("/add_partner_page")
+def add_partner_page_view():    # <-- give it a unique name
+    return render_template("add_partner.html", show_sidebar=True)
+
+@app.route("/logout")
+def logout():
+    # clear session storage (or whatever you're using)
+    session.clear()     # if you use Flask session
+    return redirect(url_for("home"))  # send back to index
 
 @app.route("/admin")
 def admin_panel_view():

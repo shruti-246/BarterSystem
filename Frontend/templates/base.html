@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Barter System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    <!-- Navigation bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="{{ url_for('home') }}" class="logo">Barter System</a>
-            <div class="nav-links">
-                <a href="{{ url_for('signup_login_view') }}">Sign Up / Login</a>
-                <a href="{{ url_for('add_product_view') }}">Add Product</a>
-                <a href="{{ url_for('view_products_view') }}">View Products</a>
-                <a href="{{ url_for('profile_view') }}">Profile</a>
-                <a href="{{ url_for('admin_login_view') }}">Admin</a>
-                <!---<a href="{{ url_for('admin_panel_view') }}">Admin</a>--->
-            </div>
-        </div>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    {% if show_sidebar %}
+    <nav class="sidebar">
+      <h2>Barter System</h2>
+      <ul>
+        <li><a href="{{ url_for('dashboard_view') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('add_product_view') }}" class="{% if active_page == 'add_product' %}active{% endif %}">Add Product</a></li>
+        <li><a href="{{ url_for('view_products_view') }}">View Products</a></li>
+        <li><a href="{{ url_for('propose_trade_view') }}" class="{% if active_page == 'propose_trade' %}active{% endif %}">Propose Trade</a></li>
+        <li><a href="{{ url_for('manage_proposals_view') }}" class="{% if active_page == 'manage_proposals' %}active{% endif %}">Manage Proposals</a></li>
+        <li><a href="{{ url_for('add_partner_view') }}" class="{% if active_page == 'add_partner' %}active{% endif %}">Add Partner</a></li>
+        <li><a href="{{ url_for('finalize_view') }}" class="{% if active_page == 'finalize' %}active{% endif %}">Finalize Trade</a></li>
+        <li><a href="{{ url_for('profile_view') }}" class="{% if active_page == 'profile' %}active{% endif %}">Profile</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+      </ul>
     </nav>
+    {% endif %}
 
+    <!-- Main content -->
     <main class="content">
-        {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </main>
-
+  </div>
 </body>
 </html>
+

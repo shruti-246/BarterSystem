@@ -13,11 +13,11 @@
 </div>
 
 <script>
-const BACKEND_URL = "{{ request.host_url.slice(0, -1) }}";  // optional, or hardcode your backend URL
+const BACKEND_URL = "{{ request.host_url }}".slice(0, -1);  // optional, or hardcode your backend URL
 
 if (!sessionStorage.getItem('user_id')) {
   alert('Please login first!');
-  window.location.href = "{{ url_for('signup_login') }}";
+  window.location.href = "{{ url_for('signup_login_view') }}";
 }
 
 const myUserId = sessionStorage.getItem('user_id');
